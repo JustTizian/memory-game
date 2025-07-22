@@ -4,9 +4,11 @@ function $(query) {
 
 const cardContainer = $('#card-container')
 const textBox = $('#text-box')
+const resetButton = $('#reset-btn')
+
 textBox.textContent = "Fails: 0"
 
-const cardSymbols = ["👾", "💩", "😶‍🌫️", "🫡", "🎶", "😎", "❤️", "🥶"]
+const cardSymbols = ["👾", "💩", "😶‍🌫️", "🫡", "🤢", "😎", "❤️", "🥶"]
 
 let cards;
 const cards1 = cardSymbols.map(_symbol => {
@@ -68,11 +70,23 @@ function flipCard(card) {
 
     if (cards.every(card => card.solved || card.turned)) {
         textBox.textContent = `You won with ${fails} fails!`
+
         clearInterval(autoPlay)
     }
 }
 
-cards.forEach(card => console.log(card.symbol))
+resetButton.addEventListener("click", reset)
+
+function reset() {
+    flippedCards.length = 0
+    cards.forEach(card => {
+        card.solved = false
+        card.turned = false
+    })
+    fails = 0
+    textBox.textContent = `Fails: ${fails}`
+    updateUI()
+}
 
 /*const autoPlay = setInterval(() => {
     const unturnedCards = cards.filter(card => !card.turned)
