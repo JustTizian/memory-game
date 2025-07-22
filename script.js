@@ -3,6 +3,8 @@ function $(query) {
 }
 
 const cardContainer = $('#card-container')
+const textBox = $('#text-box')
+textBox.textContent = "Fails: 0"
 
 const cardSymbols = ["👾", "💩", "😶‍🌫️", "🫡", "🎶", "😎", "❤️", "🥶"]
 
@@ -45,14 +47,13 @@ let fails = 0;
 
 function flipCard(card) {
 
-    if (card.turned === true) { console.log("Fail"); return }
+    if (card.turned === true) { console.log("Fail"); fails++; return }
 
     if (flippedCards.length === 2) {
         flippedCards.forEach(card => card.turned = false)
         flippedCards.length = 0
     }
 
-    updateUI()
     card.turned = !card.turned
     flippedCards.push(card)
     if (flippedCards.length === 2) {
@@ -60,18 +61,20 @@ function flipCard(card) {
             flippedCards.forEach(card => card.solved = true)
         } else {
             fails++
+            textBox.textContent = `Fails: ${fails}`
         }
     }
     updateUI()
 
     if (cards.every(card => card.solved || card.turned)) {
-        console.log("You won!")
+        textBox.textContent = `You won with ${fails} fails!`
+        clearInterval(autoPlay)
     }
 }
 
 cards.forEach(card => console.log(card.symbol))
 
-/*setInterval(() => {
+/*const autoPlay = setInterval(() => {
     const unturnedCards = cards.filter(card => !card.turned)
     const cardToFlip = unturnedCards[Math.floor(Math.random() * unturnedCards.length)]
     flipCard(cardToFlip)
