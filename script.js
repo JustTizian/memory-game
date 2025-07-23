@@ -10,34 +10,41 @@ textBox.textContent = "Fails: 0"
 
 const cardSymbols = ["👾", "💩", "😶‍🌫️", "🫡", "🤢", "😎", "❤️", "🥶"]
 
-let cards;
 const cards1 = cardSymbols.map(_symbol => {
-    const symbol = _symbol
-    const turned = false
-    const solved = false
-    const button = document.createElement("button")
-    return { symbol, turned, button }
+    return createCard(_symbol)
 })
 
 const cards2 = cardSymbols.map(_symbol => {
+    return createCard(_symbol)
+})
+
+function createCard(_symbol) {
     const symbol = _symbol
     const turned = false
     const solved = false
     const button = document.createElement("button")
-    return { symbol, turned, button }
-})
-
-cards = [...cards1, ...cards2]
-cards.sort(() => Math.ceil(Math.random() * 10) - 5)
-
-const flippedCards = []
-
-cards.forEach(card => {
+    
+    const card = { symbol, turned, button }
     card.button.addEventListener("click", () => flipCard(card))
-    cardContainer.appendChild(card.button)
-})
+    
+    return card
+}
 
-updateUI()
+let cards = [...cards1, ...cards2]
+
+function shuffleCards() {
+    cards.sort(() => Math.random() - 0.5)
+}
+
+startGame()
+function startGame() {
+    shuffleCards()
+    
+    cardContainer.replaceChildren(...cards.map(card => card.button))
+    
+    updateUI()
+}
+
 function updateUI() {
     cards.forEach(card => {
         card.solved && (card.turned = true)
@@ -46,19 +53,20 @@ function updateUI() {
 }
 
 let fails = 0;
-
+const flippedCards = []
 function flipCard(card) {
 
     if (card.turned === true) { console.log("Fail"); fails++; return }
 
-    if (flippedCards.length === 2) {
+    if (flippedCards.length >= 2) {
         flippedCards.forEach(card => card.turned = false)
         flippedCards.length = 0
     }
 
     card.turned = !card.turned
+    
     flippedCards.push(card)
-    if (flippedCards.length === 2) {
+    if (flippedCards.length >= 2) {
         if (flippedCards[0].symbol === flippedCards[1].symbol) {
             flippedCards.forEach(card => card.solved = true)
         } else {
@@ -66,32 +74,36 @@ function flipCard(card) {
             textBox.textContent = `Fails: ${fails}`
         }
     }
+    
     updateUI()
 
     if (cards.every(card => card.solved || card.turned)) {
         textBox.textContent = `You won with ${fails} fails!`
-
         clearInterval(autoPlay)
     }
 }
 
-resetButton.addEventListener("click", reset)
-
 function reset() {
     flippedCards.length = 0
+    fails = 0
+    textBox.textContent = `Fails: ${fails}`
     cards.forEach(card => {
         card.solved = false
         card.turned = false
     })
-    fails = 0
-    textBox.textContent = `Fails: ${fails}`
-    updateUI()
+    startGame()
 }
+resetButton.addEventListener("click", reset)
 
-/*const autoPlay = setInterval(() => {
+
+
+const autoPlay = setInterval(() => {
     const unturnedCards = cards.filter(card => !card.turned)
+    if(unturnedCards.length === 0) return;
     const cardToFlip = unturnedCards[Math.floor(Math.random() * unturnedCards.length)]
     flipCard(cardToFlip)
     console.log(fails)
-}, 100)*/
+}, 1)
+
+
 
